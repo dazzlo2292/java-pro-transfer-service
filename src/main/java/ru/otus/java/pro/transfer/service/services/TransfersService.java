@@ -3,19 +3,25 @@ package ru.otus.java.pro.transfer.service.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.otus.java.pro.transfer.service.dtos.ExecuteTransferDtoRq;
+import ru.otus.java.pro.transfer.service.entities.Account;
 import ru.otus.java.pro.transfer.service.entities.Transfer;
+import ru.otus.java.pro.transfer.service.exceptions_handling.BusinessLogicException;
+import ru.otus.java.pro.transfer.service.exceptions_handling.ResourceNotFoundException;
 import ru.otus.java.pro.transfer.service.exceptions_handling.ValidationException;
 import ru.otus.java.pro.transfer.service.exceptions_handling.ValidationFieldError;
+import ru.otus.java.pro.transfer.service.repositories.AccountsRepository;
 import ru.otus.java.pro.transfer.service.repositories.TransfersRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class TransfersService {
     private final TransfersRepository transfersRepository;
+    private final AccountsRepository accountsRepository;
 
     public Optional<Transfer> getTransferById(String id, String clientId) {
         return transfersRepository.findByIdAndClientId(id, clientId);
@@ -27,16 +33,16 @@ public class TransfersService {
 
     public void execute(String clientId, ExecuteTransferDtoRq executeTransferDtoRq) {
         validateExecuteTransferDtoRq(executeTransferDtoRq);
-
+        validateTransferParameters(clientId, executeTransferDtoRq);
     }
 
     private void validateExecuteTransferDtoRq(ExecuteTransferDtoRq executeTransferDtoRq) {
         List<ValidationFieldError> errors = new ArrayList<>();
-        if (executeTransferDtoRq.sourceAccount().length() != 12) {
-            errors.add(new ValidationFieldError("sourceAccount", "Длина поля счет отправителя должна составлять 12 символов"));
+        if (executeTransferDtoRq.sourceAccount().length() != 10) {
+            errors.add(new ValidationFieldError("sourceAccount", "Длина поля счет отправителя должна составлять 10 символов"));
         }
-        if (executeTransferDtoRq.targetAccount().length() != 12) {
-            errors.add(new ValidationFieldError("targetAccount", "Длина поля счет получателя должна составлять 12 символов"));
+        if (executeTransferDtoRq.targetAccount().length() != 10) {
+            errors.add(new ValidationFieldError("targetAccount", "Длина поля счет получателя должна составлять 10 символов"));
         }
         if (executeTransferDtoRq.amount() <= 0) {
             errors.add(new ValidationFieldError("amount", "Сумма перевода должна быть больше 0"));
@@ -44,5 +50,39 @@ public class TransfersService {
         if (!errors.isEmpty()) {
             throw new ValidationException("EXECUTE_TRANSFER_VALIDATION_ERROR", "Проблемы заполнения полей перевода", errors);
         }
+    }
+    private void validateTransferParameters(String clientId, ExecuteTransferDtoRq executeTransferDtoRq) {
+        Optional<Account> sourceAccount = accountsRepository.findByIdAndClientIdAndBlockFlag(executeTransferDtoRq.sourceAccount(), clientId, 'N');
+        Optional<Account> targetAccount = accountsRepository.findByIdAndClientIdAndBlockFlag(executeTransferDtoRq.targetAccount(), executeTransferDtoRq.targetClientId(), 'N');
+
+        if (sourceAccount.isEmpty()) {
+            throw new ResourceNotFoundException("Счет отправителя не найден");
+        }
+        if (targetAccount.isEmpty()) {
+            throw new ResourceNotFoundException("Счет получателя не найден");
+        }
+        if (sourceAccount.get().getBalance() < executeTransferDtoRq.amount()) {
+            throw new BusinessLogicException("INCORRECT_TRANSFER_AMOUNT","Недостаточно средств для перевода");
+        }
+
+        executeTransfer(sourceAccount.get(), targetAccount.get(), executeTransferDtoRq.message(), executeTransferDtoRq.amount());
+    }
+
+    private void executeTransfer(Account sourceAccount, Account targetAccount, String message, int amount) {
+        sourceAccount.setBalance(sourceAccount.getBalance() - amount);
+        targetAccount.setBalance(targetAccount.getBalance() + amount);
+
+        accountsRepository.save(sourceAccount);
+        accountsRepository.save(targetAccount);
+
+        transfersRepository.save(new Transfer(
+                UUID.randomUUID().toString(),
+                sourceAccount.getClientId(),
+                targetAccount.getClientId(),
+                sourceAccount.getId(),
+                targetAccount.getId(),
+                message,
+                amount)
+        );
     }
 }

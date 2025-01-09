@@ -5,8 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.stream.Collectors;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = ResourceNotFoundException.class)
@@ -20,9 +18,14 @@ public class GlobalExceptionHandler {
                 new ValidationErrorDto(
                         e.getCode(),
                         e.getMessage(),
-                        e.getErrors().stream().map(ve -> new ValidationFieldErrorDto(ve.getField(), ve.getMessage())).collect(Collectors.toUnmodifiableList())
+                        e.getErrors().stream().map(ve -> new ValidationFieldErrorDto(ve.getField(), ve.getMessage())).toList()
                 ),
                 HttpStatus.UNPROCESSABLE_ENTITY
         );
+    }
+
+    @ExceptionHandler(value = BusinessLogicException.class)
+    public ResponseEntity<ErrorDto> catchBusinessLogicException(BusinessLogicException e) {
+        return new ResponseEntity<>(new ErrorDto(e.getCode(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }
