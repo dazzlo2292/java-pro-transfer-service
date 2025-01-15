@@ -15,13 +15,13 @@ import ru.otus.java.pro.transfer.service.repositories.TransfersRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class TransfersService {
     private final TransfersRepository transfersRepository;
     private final AccountsRepository accountsRepository;
+    private final TransactionalService transactionalService;
 
     public Optional<Transfer> getTransferById(String id, String clientId) {
         return transfersRepository.findByIdAndClientId(id, clientId);
@@ -51,6 +51,7 @@ public class TransfersService {
             throw new ValidationException("EXECUTE_TRANSFER_VALIDATION_ERROR", "Проблемы заполнения полей перевода", errors);
         }
     }
+
     private void validateTransferParameters(String clientId, ExecuteTransferDtoRq executeTransferDtoRq) {
         Optional<Account> sourceAccount = accountsRepository.findByIdAndClientIdAndBlockFlag(executeTransferDtoRq.sourceAccount(), clientId, 'N');
         Optional<Account> targetAccount = accountsRepository.findByIdAndClientIdAndBlockFlag(executeTransferDtoRq.targetAccount(), executeTransferDtoRq.targetClientId(), 'N');
@@ -65,24 +66,6 @@ public class TransfersService {
             throw new BusinessLogicException("INCORRECT_TRANSFER_AMOUNT","Недостаточно средств для перевода");
         }
 
-        executeTransfer(sourceAccount.get(), targetAccount.get(), executeTransferDtoRq.message(), executeTransferDtoRq.amount());
-    }
-
-    private void executeTransfer(Account sourceAccount, Account targetAccount, String message, int amount) {
-        sourceAccount.setBalance(sourceAccount.getBalance() - amount);
-        targetAccount.setBalance(targetAccount.getBalance() + amount);
-
-        accountsRepository.save(sourceAccount);
-        accountsRepository.save(targetAccount);
-
-        transfersRepository.save(new Transfer(
-                UUID.randomUUID().toString(),
-                sourceAccount.getClientId(),
-                targetAccount.getClientId(),
-                sourceAccount.getId(),
-                targetAccount.getId(),
-                message,
-                amount)
-        );
+        transactionalService.executeTransfer(sourceAccount.get(), targetAccount.get(), executeTransferDtoRq.message(), executeTransferDtoRq.amount());
     }
 }
