@@ -1,2 +1,4 @@
 rootProject.name = 'java-pro-transfer-service'
+include 'core-transfers'
+include 'limits'
 
