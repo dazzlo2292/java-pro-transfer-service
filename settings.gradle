@@ -1,4 +1,6 @@
 rootProject.name = 'java-pro-transfer-service'
 include 'core-transfers'
 include 'limits'
+include 'notifications'
+include 'kafka-producer'
 

@@ -19,21 +19,20 @@ public class TransactionalServiceImpl implements TransactionalService {
     private final AccountsRepository accountsRepository;
 
     @Override
-    public void executeTransfer(Account sourceAccount, Account targetAccount, String message, BigDecimal amount) {
+    public Transfer executeTransfer(Account sourceAccount, Account targetAccount, String message, BigDecimal amount) {
         sourceAccount.setBalance(sourceAccount.getBalance().subtract(amount));
         targetAccount.setBalance(targetAccount.getBalance().add(amount));
 
         accountsRepository.save(sourceAccount);
         accountsRepository.save(targetAccount);
 
-        transfersRepository.save(new Transfer(
+        return transfersRepository.save(new Transfer(
                 UUID.randomUUID().toString(),
                 sourceAccount.getClientId(),
                 targetAccount.getClientId(),
                 sourceAccount.getId(),
                 targetAccount.getId(),
                 message,
-                amount)
-        );
+                amount));
     }
 }

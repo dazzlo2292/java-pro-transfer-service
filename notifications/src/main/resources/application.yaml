@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: mt-notifications
+  kafka:
+    bootstrap-servers: 127.0.0.1:9093
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            type:
+              mapping: "TransferStatus:ru.otus.java.pro.mt.notifications.dtos.KafkaTransferStatusDto"

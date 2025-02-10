@@ -12,6 +12,17 @@ spring:
   jpa:
     show-sql: true
     open-in-view: false
+  kafka:
+    bootstrap-servers: 127.0.0.1:9093
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            type:
+              mapping: "TransferStatus:ru.otus.java.pro.mt.core.transfers.dtos.KafkaTransferStatusDto"
+
 management:
   endpoints:
     web:
