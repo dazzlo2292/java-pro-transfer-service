@@ -37,14 +37,15 @@ public class TransfersServiceImpl implements TransfersService {
         transferRequestValidator.validate(executeTransferDtoRq);
         transferRequestValidator.validateTransferParameters(clientId, executeTransferDtoRq);
         // execution
-        if (!limitsService.isLimitEnough(clientId, executeTransferDtoRq.getAmount())) {
-            // ...
-        }
-        if (executeTransferDtoRq.getAmount().compareTo(transfersProperties.getMaxTransferSum()) > 0) {
-            throw new BusinessLogicException("OOPS", "OOPS_CODE");
-        }
-        Transfer transfer = new Transfer(UUID.randomUUID().toString(), "1", "2", "1", "2", "Demo", BigDecimal.ONE);
-        save(transfer);
+//        if (!limitsService.isLimitEnough(clientId, executeTransferDtoRq.getAmount())) {
+//            // ...
+//            System.out.println("SERVICE IS LIVE!!!!");
+//        }
+//        if (executeTransferDtoRq.getAmount().compareTo(transfersProperties.getMaxTransferSum()) > 0) {
+//            throw new BusinessLogicException("OOPS", "OOPS_CODE");
+//        }
+//        Transfer transfer = new Transfer(UUID.randomUUID().toString(), "1", "2", "1", "2", "Demo", BigDecimal.ONE);
+//        save(transfer);
     }
 
     @Override

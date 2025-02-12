@@ -1,6 +1,6 @@
 docker build . -t postgres_custom_ru
 
-http://localhost:8189/swagger-ui/index.html
+http://localhost:8181/swagger-ui/index.html
 
 https://editor.swagger.io/
 
