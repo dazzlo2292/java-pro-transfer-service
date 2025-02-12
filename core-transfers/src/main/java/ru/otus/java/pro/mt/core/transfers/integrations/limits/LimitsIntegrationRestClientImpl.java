@@ -13,10 +13,10 @@ import ru.otus.java.pro.mt.core.transfers.exceptions_handling.BusinessLogicExcep
 @RequiredArgsConstructor
 @ConditionalOnMissingBean(RestTemplate.class)
 public class LimitsIntegrationRestClientImpl implements LimitsIntegration {
-    private final RestClient clientsInfoClient;
+    private final RestClient limitsClient;
 
     public RemainingLimitDto getRemainingLimit(String clientId) {
-        return clientsInfoClient
+        return limitsClient
                 .get()
                 .uri("/check")
                 .header("client-id", clientId)

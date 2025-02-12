@@ -20,7 +20,7 @@ public class TransfersServiceImpl implements TransfersService {
     private final TransfersRepository transfersRepository;
     private final TransferRequestValidator transferRequestValidator;
     private final TransfersProperties transfersProperties;
-    private final LimitsService limitsService;
+    private final LimitsServiceImpl limitsService;
 
     @Override
     public Optional<Transfer> getTransferById(String id, String clientId) {
@@ -37,7 +37,7 @@ public class TransfersServiceImpl implements TransfersService {
         transferRequestValidator.validate(executeTransferDtoRq);
         transferRequestValidator.validateTransferParameters(clientId, executeTransferDtoRq);
         // execution
-        if (!limitsService.isLimitEnough()) {
+        if (!limitsService.isLimitEnough(clientId, executeTransferDtoRq.getAmount())) {
             // ...
         }
         if (executeTransferDtoRq.getAmount().compareTo(transfersProperties.getMaxTransferSum()) > 0) {
