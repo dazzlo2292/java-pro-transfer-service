@@ -18,14 +18,11 @@ management:
       exposure:
         include: '*'
 integrations:
-  rest-client:
-    url: http://localhost:8182/api/v1
-    read-timeout: 30s
-    write-timeout: 2s
   limits:
-    url: http://localhost:8182/api/v1/limits
-    read-timeout: 30s
-    write-timeout: 2s
+    rest-client:
+      url: http://localhost:8182/api/v1/limits
+      read-timeout: 30s
+      connect-timeout: 60s
 logging:
   level:
     org.zalando.logbook.Logbook: TRACE

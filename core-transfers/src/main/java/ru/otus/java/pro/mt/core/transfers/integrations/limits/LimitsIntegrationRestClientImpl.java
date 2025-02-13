@@ -18,7 +18,7 @@ public class LimitsIntegrationRestClientImpl implements LimitsIntegration {
     public RemainingLimitDto getRemainingLimit(String clientId) {
         return limitsClient
                 .get()
-                .uri("/limits/check")
+                .uri("/check")
                 .header("client-id", clientId)
                 .retrieve()
                 .onStatus(httpStatusCode -> httpStatusCode.value() == HttpStatus.NOT_FOUND.value(), (request, response) -> {

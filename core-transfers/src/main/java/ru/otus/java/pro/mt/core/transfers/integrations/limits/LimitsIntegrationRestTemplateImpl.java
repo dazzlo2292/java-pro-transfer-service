@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import ru.otus.java.pro.mt.core.transfers.configs.properties.LimitsIntegrationProperties;
+import ru.otus.java.pro.mt.core.transfers.configs.properties.LimitsIntegrationRestClientProperties;
 import ru.otus.java.pro.mt.core.transfers.dtos.RemainingLimitDto;
 import ru.otus.java.pro.mt.core.transfers.exceptions_handling.BusinessLogicException;
 
@@ -22,7 +22,7 @@ import java.util.List;
 @ConditionalOnBean(RestTemplate.class)
 public class LimitsIntegrationRestTemplateImpl implements LimitsIntegration {
     private final RestTemplate commonRestTemplate;
-    private final LimitsIntegrationProperties limitsIntegrationProperties;
+    private final LimitsIntegrationRestClientProperties limitsIntegrationProperties;
 
     public RemainingLimitDto getRemainingLimit(String clientId) {
         try {
