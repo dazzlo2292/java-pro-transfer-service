@@ -10,7 +10,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/core-transfers" />
+            <option value="$PROJECT_DIR$/kafka-producer" />
             <option value="$PROJECT_DIR$/limits" />
+            <option value="$PROJECT_DIR$/notifications" />
           </set>
         </option>
       </GradleProjectSettings>
