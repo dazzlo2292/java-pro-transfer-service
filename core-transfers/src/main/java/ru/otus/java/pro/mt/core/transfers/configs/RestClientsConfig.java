@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import ru.otus.java.pro.mt.core.transfers.configs.properties.LimitsIntegrationProperties;
 
 @Configuration
-public class IntegrationsConfig {
+public class RestClientsConfig {
     // @Bean
     public RestTemplate commonRestTemplate() {
         return new RestTemplate();
