@@ -9,7 +9,6 @@ import ru.otus.java.pro.mt.core.transfers.exceptions_handling.ResourceNotFoundEx
 import ru.otus.java.pro.mt.core.transfers.exceptions_handling.ValidationException;
 import ru.otus.java.pro.mt.core.transfers.exceptions_handling.ValidationFieldError;
 import ru.otus.java.pro.mt.core.transfers.repositories.AccountsRepository;
-import ru.otus.java.pro.mt.core.transfers.services.TransactionalService;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TransferRequestValidator {
     private final AccountsRepository accountsRepository;
-    private final TransactionalService transactionalService;
 
     public void validate(ExecuteTransferDtoRq executeTransferDtoRq) {
         List<ValidationFieldError> errors = new ArrayList<>();
@@ -52,7 +50,5 @@ public class TransferRequestValidator {
         if (sourceAccount.get().getBalance().compareTo(executeTransferDtoRq.getAmount()) < 0) {
             throw new BusinessLogicException("INCORRECT_TRANSFER_AMOUNT","Недостаточно средств для перевода");
         }
-
-        transactionalService.executeTransfer(sourceAccount.get(), targetAccount.get(), executeTransferDtoRq.getMessage(), executeTransferDtoRq.getAmount());
     }
 }
