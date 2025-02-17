@@ -5,3 +5,5 @@ http://localhost:8181/swagger-ui/index.html
 https://editor.swagger.io/
 
 -Dspring.profiles.active=dev
+
+docker build . -t mt-core-transfers

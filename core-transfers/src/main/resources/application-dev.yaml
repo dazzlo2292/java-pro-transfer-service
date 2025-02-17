@@ -24,6 +24,9 @@ spring:
               mapping: "TransferStatus:ru.otus.java.pro.mt.core.transfers.dtos.KafkaTransferStatusDto"
 
 management:
+  endpoint:
+    health:
+      show-details: always
   endpoints:
     web:
       exposure:
