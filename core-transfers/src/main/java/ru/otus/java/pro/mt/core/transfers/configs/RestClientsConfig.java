@@ -22,6 +22,6 @@ public class RestClientsConfig {
     @Bean
     @ConditionalOnMissingBean(RestTemplate.class)
     public RestClient limitsClient(RestClientFactory restClientFactory) {
-        return restClientFactory.createRestClient(limitsRestClientProperties.getRestClientProperties());
+        return restClientFactory.createRestClient(limitsRestClientProperties.getRestClient());
     }
 }

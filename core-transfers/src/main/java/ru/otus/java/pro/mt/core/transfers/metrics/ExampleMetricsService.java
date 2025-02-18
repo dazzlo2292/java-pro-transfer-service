@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class ExampleMetricsService {
     private final Counter exampleMetricCounter;
-    private final AtomicInteger customMetricGauge;
+    private final AtomicInteger exampleMetricGauge;
 
     public ExampleMetricsService(MeterRegistry meterRegistry) {
         exampleMetricCounter = Counter.builder("custom_metric_name")
@@ -16,13 +16,13 @@ public class ExampleMetricsService {
                 .tags("environment", "development")
                 .register(meterRegistry);
 
-        customMetricGauge = meterRegistry.gauge("custom_gauge", new AtomicInteger(0));
+        exampleMetricGauge = meterRegistry.gauge("custom_gauge", new AtomicInteger(0));
     }
-    public void incrementCustomMetric() {
+    public void incrementExampleMetric() {
         exampleMetricCounter.increment();
     }
 
-    public void changeCustomGauge() {
-        customMetricGauge.set((int)(Math.random() * 1000));
+    public void changeExampleGauge() {
+        exampleMetricGauge.set((int)(Math.random() * 1000));
     }
 }

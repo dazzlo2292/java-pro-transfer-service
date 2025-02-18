@@ -8,5 +8,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties("integrations.limits")
 public class LimitsIntegrationProperties {
-    private RestClientProperties restClientProperties;
+    private RestClientProperties restClient;
 }
