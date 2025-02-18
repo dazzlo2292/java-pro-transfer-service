@@ -6,4 +6,6 @@ https://editor.swagger.io/
 
 -Dspring.profiles.active=dev
 
-docker build . -t mt-core-transfers
+docker build . -t core-transfers-service
+docker build . -t limits-service
+docker build . -t notifications-service

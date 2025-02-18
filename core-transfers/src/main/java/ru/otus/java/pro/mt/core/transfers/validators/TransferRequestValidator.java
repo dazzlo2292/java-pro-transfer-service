@@ -8,6 +8,7 @@ import ru.otus.java.pro.mt.core.transfers.exceptions_handling.BusinessLogicExcep
 import ru.otus.java.pro.mt.core.transfers.exceptions_handling.ResourceNotFoundException;
 import ru.otus.java.pro.mt.core.transfers.exceptions_handling.ValidationException;
 import ru.otus.java.pro.mt.core.transfers.exceptions_handling.ValidationFieldError;
+import ru.otus.java.pro.mt.core.transfers.metrics.TransferRequestsMetricsService;
 import ru.otus.java.pro.mt.core.transfers.repositories.AccountsRepository;
 
 import java.math.BigDecimal;
@@ -19,6 +20,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TransferRequestValidator {
     private final AccountsRepository accountsRepository;
+
+    private final TransferRequestsMetricsService transferRequestsMetricsService;
 
     public void validate(ExecuteTransferDtoRq executeTransferDtoRq) {
         List<ValidationFieldError> errors = new ArrayList<>();
@@ -32,6 +35,7 @@ public class TransferRequestValidator {
             errors.add(new ValidationFieldError("amount", "Сумма перевода должна быть больше 0"));
         }
         if (!errors.isEmpty()) {
+            transferRequestsMetricsService.incrementFailedTransferRequestsMetric();
             throw new ValidationException("EXECUTE_TRANSFER_VALIDATION_ERROR", "Проблемы заполнения полей перевода", errors);
         }
     }
@@ -41,13 +45,16 @@ public class TransferRequestValidator {
         Optional<Account> targetAccount = accountsRepository.findByIdAndClientIdAndBlockFlag(executeTransferDtoRq.getTargetAccount(), executeTransferDtoRq.getTargetClientId(), 'N');
 
         if (sourceAccount.isEmpty()) {
+            transferRequestsMetricsService.incrementFailedTransferRequestsMetric();
             throw new ResourceNotFoundException("Счет отправителя не найден");
         }
         if (targetAccount.isEmpty()) {
+            transferRequestsMetricsService.incrementFailedTransferRequestsMetric();
             throw new ResourceNotFoundException("Счет получателя не найден");
         }
 
         if (sourceAccount.get().getBalance().compareTo(executeTransferDtoRq.getAmount()) < 0) {
+            transferRequestsMetricsService.incrementFailedTransferRequestsMetric();
             throw new BusinessLogicException("INCORRECT_TRANSFER_AMOUNT","Недостаточно средств для перевода");
         }
     }

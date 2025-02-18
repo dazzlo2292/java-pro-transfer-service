@@ -1,6 +1,7 @@
 package ru.otus.java.pro.mt.core.transfers.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.otus.java.pro.mt.core.transfers.configs.properties.TransfersProperties;
 import ru.otus.java.pro.mt.core.transfers.dtos.ExecuteTransferDtoRq;
@@ -9,6 +10,7 @@ import ru.otus.java.pro.mt.core.transfers.entities.Account;
 import ru.otus.java.pro.mt.core.transfers.entities.Transfer;
 import ru.otus.java.pro.mt.core.transfers.exceptions_handling.BusinessLogicException;
 import ru.otus.java.pro.mt.core.transfers.integrations.notifications.KafkaProducer;
+import ru.otus.java.pro.mt.core.transfers.metrics.TransferRequestsMetricsService;
 import ru.otus.java.pro.mt.core.transfers.repositories.AccountsRepository;
 import ru.otus.java.pro.mt.core.transfers.repositories.TransfersRepository;
 import ru.otus.java.pro.mt.core.transfers.validators.TransferRequestValidator;
@@ -28,6 +30,9 @@ public class TransfersServiceImpl implements TransfersService {
     private final TransactionalService transactionalService;
     private final AccountsRepository accountsRepository;
     private final KafkaProducer kafkaProducer;
+    private final TransferRequestsMetricsService transferRequestsMetricsService;
+
+    private static final int MAX_TRANSFERS_ON_PAGE = 1000;
 
     @Override
     public Optional<Transfer> getTransferById(String id, String clientId) {
@@ -35,12 +40,20 @@ public class TransfersServiceImpl implements TransfersService {
     }
 
     @Override
-    public List<Transfer> getAllTransfers(String clientId) {
+    public List<Transfer> getAllTransfers(String clientId, Integer pageNumber, Integer transfersCount) {
+        if (pageNumber != null) {
+            if (transfersCount > MAX_TRANSFERS_ON_PAGE) {
+                throw new BusinessLogicException("INCORRECT_TRANSFERS_COUNT_ON_PAGE","Превышено максимальное число переводов на странице (max = 1000).");
+            }
+            return transfersRepository.findAllByClientId(clientId, PageRequest.of(pageNumber, transfersCount));
+        }
         return transfersRepository.findAllByClientId(clientId);
     }
 
     @Override
     public void execute(String clientId, ExecuteTransferDtoRq executeTransferDtoRq) {
+        transferRequestsMetricsService.incrementTransferRequestsMetric();
+
         transferRequestValidator.validate(executeTransferDtoRq);
         transferRequestValidator.validateTransferParameters(clientId, executeTransferDtoRq);
 
@@ -49,6 +62,7 @@ public class TransfersServiceImpl implements TransfersService {
 
         if (sourceAccount.isPresent() && targetAccount.isPresent()) {
             Transfer transfer = transactionalService.executeTransfer(sourceAccount.get(), targetAccount.get(), executeTransferDtoRq.getMessage(), executeTransferDtoRq.getAmount());
+            transferRequestsMetricsService.incrementSuccessTransferRequestsMetric();
             kafkaProducer.send(new KafkaTransferStatusDto(transfer.getId(), "EXECUTED"));
         }
 

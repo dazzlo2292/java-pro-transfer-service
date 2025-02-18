@@ -16,6 +16,7 @@ import ru.otus.java.pro.mt.core.transfers.exceptions_handling.ErrorDto;
 import ru.otus.java.pro.mt.core.transfers.exceptions_handling.ResourceNotFoundException;
 import ru.otus.java.pro.mt.core.transfers.services.TransfersService;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -40,11 +41,17 @@ public class TransfersController {
     )
     public TransfersPageDto getAllTransfers(
             @Parameter(description = "Идентификатор клиента", required = true, schema = @Schema(type = "string", maxLength = 10, example = "1234567890"))
-            @RequestHeader(name = "client-id") String clientId
+            @RequestHeader(name = "client-id") String clientId,
+
+            @Parameter(description = "Номер страницы", required = false, schema = @Schema(type = "integer", example = "5"))
+            @RequestParam(value = "page", required=false) Integer page,
+
+            @Parameter(description = "Количество переводов на странице", required = false, schema = @Schema(type = "integer", defaultValue = "20", maximum = "1000", example = "100"))
+            @RequestParam(value = "count", required=false, defaultValue = "20") Integer count
     ) {
         return new TransfersPageDto(
                 transfersService
-                        .getAllTransfers(clientId)
+                        .getAllTransfers(clientId, page, count)
                         .stream()
                         .map(ENTITY_TO_DTO).collect(Collectors.toList())
         );
