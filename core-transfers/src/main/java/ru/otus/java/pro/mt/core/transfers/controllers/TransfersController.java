@@ -43,15 +43,15 @@ public class TransfersController {
             @Parameter(description = "Идентификатор клиента", required = true, schema = @Schema(type = "string", maxLength = 10, example = "1234567890"))
             @RequestHeader(name = "client-id") String clientId,
 
-            @Parameter(description = "Номер страницы", required = false, schema = @Schema(type = "integer", example = "5"))
-            @RequestParam(value = "page", required=false) Integer page,
+            @Parameter(description = "Номер страницы", required = false, schema = @Schema(type = "integer", defaultValue = "0", example = "5"))
+            @RequestParam(value = "page", required=false, defaultValue = "0") Integer page,
 
             @Parameter(description = "Количество переводов на странице", required = false, schema = @Schema(type = "integer", defaultValue = "20", maximum = "1000", example = "100"))
-            @RequestParam(value = "count", required=false, defaultValue = "20") Integer count
+            @RequestParam(value = "size", required=false, defaultValue = "20") Integer size
     ) {
         return new TransfersPageDto(
                 transfersService
-                        .getAllTransfers(clientId, page, count)
+                        .getAllTransfers(clientId, page, size)
                         .stream()
                         .map(ENTITY_TO_DTO).collect(Collectors.toList())
         );

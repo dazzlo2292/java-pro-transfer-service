@@ -21,8 +21,6 @@ import java.util.Optional;
 public class TransferRequestValidator {
     private final AccountsRepository accountsRepository;
 
-    private final TransferRequestsMetricsService transferRequestsMetricsService;
-
     public void validate(ExecuteTransferDtoRq executeTransferDtoRq) {
         List<ValidationFieldError> errors = new ArrayList<>();
         if (executeTransferDtoRq.getSourceAccount().length() != 12) {
@@ -35,7 +33,6 @@ public class TransferRequestValidator {
             errors.add(new ValidationFieldError("amount", "Сумма перевода должна быть больше 0"));
         }
         if (!errors.isEmpty()) {
-            transferRequestsMetricsService.incrementFailedTransferRequestsMetric();
             throw new ValidationException("EXECUTE_TRANSFER_VALIDATION_ERROR", "Проблемы заполнения полей перевода", errors);
         }
     }
@@ -45,16 +42,13 @@ public class TransferRequestValidator {
         Optional<Account> targetAccount = accountsRepository.findByIdAndClientIdAndBlockFlag(executeTransferDtoRq.getTargetAccount(), executeTransferDtoRq.getTargetClientId(), 'N');
 
         if (sourceAccount.isEmpty()) {
-            transferRequestsMetricsService.incrementFailedTransferRequestsMetric();
             throw new ResourceNotFoundException("Счет отправителя не найден");
         }
         if (targetAccount.isEmpty()) {
-            transferRequestsMetricsService.incrementFailedTransferRequestsMetric();
             throw new ResourceNotFoundException("Счет получателя не найден");
         }
 
         if (sourceAccount.get().getBalance().compareTo(executeTransferDtoRq.getAmount()) < 0) {
-            transferRequestsMetricsService.incrementFailedTransferRequestsMetric();
             throw new BusinessLogicException("INCORRECT_TRANSFER_AMOUNT","Недостаточно средств для перевода");
         }
     }

@@ -15,8 +15,5 @@ public interface TransfersRepository extends JpaRepository<Transfer, String> {
     Optional<Transfer> findByIdAndClientId(String id, String clientId);
 
     @Query("SELECT t FROM Transfer t WHERE t.clientId = :clientId OR t.targetClientId = :clientId")
-    List<Transfer> findAllByClientId(String clientId);
-
-    @Query("SELECT t FROM Transfer t WHERE t.clientId = :clientId OR t.targetClientId = :clientId")
     List<Transfer> findAllByClientId(String clientId, Pageable page);
 }
