@@ -46,7 +46,7 @@ public class TransfersController {
             @Parameter(description = "Номер страницы", required = false, schema = @Schema(type = "integer", defaultValue = "0", example = "5"))
             @RequestParam(value = "page", required=false, defaultValue = "0") Integer page,
 
-            @Parameter(description = "Количество переводов на странице", required = false, schema = @Schema(type = "integer", defaultValue = "20", maximum = "1000", example = "100"))
+            @Parameter(description = "Количество переводов на странице", required = false, schema = @Schema(type = "integer", defaultValue = "20", maximum = "100", example = "10"))
             @RequestParam(value = "size", required=false, defaultValue = "20") Integer size
     ) {
         return new TransfersPageDto(

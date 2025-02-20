@@ -29,7 +29,7 @@ public class TransfersServiceImpl implements TransfersService {
     private final KafkaProducer kafkaProducer;
     private final TransferRequestsMetricsService transferRequestsMetricsService;
 
-    private static final int MAX_PAGE_SIZE = 1000;
+    private static final int MAX_PAGE_SIZE = 100;
 
     @Override
     public Optional<Transfer> getTransferById(String id, String clientId) {
