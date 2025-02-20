@@ -1,5 +1,6 @@
 package ru.otus.java.pro.mt.core.transfers.repositories;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,5 +15,5 @@ public interface TransfersRepository extends JpaRepository<Transfer, String> {
     Optional<Transfer> findByIdAndClientId(String id, String clientId);
 
     @Query("SELECT t FROM Transfer t WHERE t.clientId = :clientId OR t.targetClientId = :clientId")
-    List<Transfer> findAllByClientId(String clientId);
+    List<Transfer> findAllByClientId(String clientId, Pageable page);
 }

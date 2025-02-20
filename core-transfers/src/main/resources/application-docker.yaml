@@ -22,6 +22,6 @@ management:
         include: '*'
 integrations:
   limits:
-    url: http://localhost:8182/api/v1/limits
+    url: http://limits-service:8181/api/v1/limits
     read-timeout: 30s
     write-timeout: 2s
